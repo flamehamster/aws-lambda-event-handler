@@ -1,0 +1,20 @@
+{
+	"parser": "@typescript-eslint/parser",
+	"extends": [
+		"airbnb-typescript/base",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:jest/recommended",
+		"plugin:prettier/recommended"
+	],
+	"plugins": ["filenames"],
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module",
+		"project": "tsconfig.json"
+	},
+	"rules": {
+		"class-methods-use-this": "warn",
+		"filenames/match-regex": [2, "^[0-9a-z-.]+$", true],
+		"no-console": "off"
+	}
+}
