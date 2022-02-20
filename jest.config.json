@@ -4,8 +4,8 @@
 	},
 	"testMatch": ["**/tests/**/*.test.ts"],
 	"moduleFileExtensions": ["ts", "js"],
-	"moduleDirectories": ["node_modules"],
+	"moduleDirectories": ["./node_modules"],
 	"collectCoverage": true,
-	"collectCoverageFrom": ["src/index.ts"],
+	"collectCoverageFrom": ["./src/index.ts"],
 	"verbose": true
 }

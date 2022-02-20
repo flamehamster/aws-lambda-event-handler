@@ -1,11 +1,10 @@
 import { SNSEvent, SNSMessage, SQSEvent, SQSRecord, EventBridgeEvent } from 'aws-lambda';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import SQS from 'aws-sdk/clients/sqs';
 
-export type LambdaEvent = SNSEvent | SQSEvent | EventBridgeEvent<string, Record<string, unknown>>;
+type LambdaEvent = SNSEvent | SQSEvent | EventBridgeEvent<string, Record<string, unknown>>;
 
 export default class Lambda {
-	private readonly fns: ((event: LambdaEvent) => Promise<void>)[];
+	private readonly fns: ((event: LambdaEvent) => Promise<unknown>)[];
 
 	constructor() {
 		this.fns = [];
@@ -15,12 +14,10 @@ export default class Lambda {
 		const fn = async (event: SNSEvent) => {
 			if (!Array.isArray(event.Records)) return;
 
-			// SNS only sends 1 record when processed by lambda
-			// https://docs.aws.amazon.com/lambda/latest/dg/with-sns-create-package.html
 			const record = event.Records[0];
-			if (record.EventSource === 'aws:sns' && record.Sns.TopicArn === topicArn) {
-				await processSnsMessage(record.Sns);
-			}
+			if (record.EventSource !== 'aws:sns' || record.Sns.TopicArn !== topicArn) return;
+
+			await processSnsMessage(record.Sns);
 		};
 		this.fns.push(fn);
 	};
@@ -29,12 +26,11 @@ export default class Lambda {
 		const fn = async (event: SQSEvent) => {
 			if (!Array.isArray(event.Records)) return;
 
-			const records = event.Records.filter(
-				(record) => record.eventSource === 'aws:sqs' && record.eventSourceARN === queueArn
-			);
+			const records = event.Records;
+			if (records[0].eventSource !== 'aws:sqs' || records[0].eventSourceARN !== queueArn) return;
 
 			const fulfilledRecords: SQS.DeleteMessageBatchRequestEntry[] = [];
-			const errors: unknown[] = [];
+			const errors: Error[] = [];
 
 			await Promise.all(
 				records.map((record) =>
@@ -52,8 +48,6 @@ export default class Lambda {
 			);
 
 			if (errors.length) {
-				// if error(s), delete fulfilled record(s)
-				// throw error to retry failed record(s)
 				if (fulfilledRecords.length) {
 					await this.sqsDeleteMessageBatch(queueArn, fulfilledRecords);
 				}
@@ -61,8 +55,7 @@ export default class Lambda {
 				errors.forEach((err) => {
 					console.error(err);
 				});
-
-				throw new Error(`SQS Batch Failure: ${fulfilledRecords.length} of ${records.length} succeeded`);
+				throw new Error(`SQS Batch Failure: ${errors.length} of ${records.length} failed`);
 			}
 		};
 		this.fns.push(fn);
@@ -72,15 +65,12 @@ export default class Lambda {
 		const fn = async (event: SQSEvent) => {
 			if (!Array.isArray(event.Records)) return;
 
-			const records = event.Records.filter(
-				(record) => record.eventSource === 'aws:sqs' && record.eventSourceARN === queueArn
-			);
+			const records = event.Records;
+			if (records[0].eventSource !== 'aws:sqs' || records[0].eventSourceARN !== queueArn) return;
 
 			const fulfilledRecords: SQS.DeleteMessageBatchRequestEntry[] = [];
 
 			try {
-				// need to do sequentially to support FIFO
-				// eslint-disable-next-line no-restricted-syntax
 				for (const record of records) {
 					// eslint-disable-next-line no-await-in-loop
 					await processSqsRecord(record);
@@ -91,32 +81,42 @@ export default class Lambda {
 				}
 			} catch (err) {
 				// catch error and delete fulfilled record(s)
-				// throw error to retry failed record(s)
+				// throw error to retry failed and remaining record(s)
 				if (fulfilledRecords.length) {
 					await this.sqsDeleteMessageBatch(queueArn, fulfilledRecords);
 				}
 
-				try {
-					throw err;
-				} finally {
-					console.error(`SQS FIFO Batch Failure: ${fulfilledRecords.length} of ${records.length} succeeded`);
-				}
+				console.error(err);
+				const failedRecordsCount = records.length - fulfilledRecords.length;
+				throw new Error(`SQS FIFO Batch Failure: ${failedRecordsCount} of ${records.length} failed`);
 			}
 		};
 		this.fns.push(fn);
 	};
 
-	eventBridge = (ruleArn: string, processEventBridge: () => Promise<void>): void => {
+	scheduledEvent = (ruleArn: string, processScheduledEvent: () => Promise<void>): void => {
+		const fn = async (event: EventBridgeEvent<'Scheduled Event', Record<string, never>>) => {
+			if (event.source !== 'aws.events' || !event.resources.includes(ruleArn)) return;
+			await processScheduledEvent();
+		};
+		this.fns.push(fn);
+	};
+
+	eventBridge = (source: string, processEventBridge: (detail: Record<string, unknown>) => Promise<void>): void => {
 		const fn = async (event: EventBridgeEvent<string, Record<string, unknown>>) => {
-			if (event.source === 'aws.events' && event.resources.includes(ruleArn)) {
-				await processEventBridge();
-			}
+			if (event.source !== source) return;
+			await processEventBridge(event.detail);
 		};
 		this.fns.push(fn);
 	};
 
-	handler = async (event: LambdaEvent): Promise<void> => {
-		await Promise.all(this.fns.map((fn) => fn(event)));
+	handler = async (event: LambdaEvent): Promise<unknown> => {
+		for (const fn of this.fns) {
+			const result = await fn(event);
+			if (result) {
+				return result;
+			}
+		}
 	};
 
 	sqsDeleteMessageBatch = async (

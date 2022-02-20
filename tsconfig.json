@@ -3,19 +3,16 @@
 		"lib": ["es2017"],
 		"target": "es6",
 		"module": "commonjs",
-		"baseUrl": ".",
-		"outDir": "./dist/",
+		"declaration": true,
+		"outDir": "./dist",
 		"allowJs": true,
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"esModuleInterop": true,
 		"emitDecoratorMetadata": true,
 		"noImplicitAny": true,
-		"paths": {
-			"*": ["node_modules/*"]
-		},
 		"skipLibCheck": true,
 		"sourceMap": true
 	},
-	"include": ["src"]
+	"include": ["./src", "./tests"]
 }
