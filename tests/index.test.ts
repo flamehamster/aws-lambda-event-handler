@@ -36,10 +36,10 @@ describe('AWS Lambda Handler', () => {
 	lambda.scheduledEvent(notRuleArn, mock.notProcessScheduledEvent);
 
 	// EventBridge Event
-	const source = 'aws.ecr';
-	const notSource = '';
-	lambda.eventBridge(source, mock.processEventBridge);
-	lambda.eventBridge(notSource, mock.notProcessEventBridge);
+	const resourceArn = 'arn:aws:rds:us-east-1:1234567890:db:rds-1234';
+	const notResourceArn = '';
+	lambda.eventBridge(resourceArn, mock.processEventBridge);
+	lambda.eventBridge(notResourceArn, mock.notProcessEventBridge);
 
 	// SNS
 	const topicArn = 'arn:aws:sns:us-east-1:1234567890:topic-1234';
@@ -100,8 +100,8 @@ describe('AWS Lambda Handler', () => {
 				account: '1234567890',
 				time: '2020-02-02T20:02:02Z',
 				region: 'us-east-1',
-				source,
-				resources: [],
+				source: 'aws.rds',
+				resources: [resourceArn],
 				detail: {
 					'action-type': 'PUSH',
 					'image-digest': 'sha256:',

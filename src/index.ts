@@ -102,9 +102,9 @@ export default class Lambda {
 		this.fns.push(fn);
 	};
 
-	eventBridge = (source: string, processEventBridge: (detail: Record<string, unknown>) => Promise<void>): void => {
+	eventBridge = (resourceArn: string, processEventBridge: (detail: Record<string, unknown>) => Promise<void>): void => {
 		const fn = async (event: EventBridgeEvent<string, Record<string, unknown>>) => {
-			if (event.source !== source) return;
+			if (!Array.isArray(event.resources) || !event.resources.includes(resourceArn)) return;
 			await processEventBridge(event.detail);
 		};
 		this.fns.push(fn);
