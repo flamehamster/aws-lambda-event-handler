@@ -1,9 +1,9 @@
-
 # aws-lambda-handler
 
 [![npm package](https://img.shields.io/npm/v/aws-lambda-handler.svg)](http://npmjs.org/package/aws-lambda-handler)
 ![npm license](https://img.shields.io/npm/l/aws-lambda-handler)
 ![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/aws-lambda-handler)
+
 Instead of using one Lambda function for each event, we can add multiple event triggers to a single Lambda function.
 `aws-lambda-handler` allows us to manage multiple events in one Lambda function easily.
 
@@ -51,7 +51,7 @@ $ npm i aws-lambda-handler
 
 ```bash
 $ npm i aws-lambda-handler
-$ npm i --save-dev @types/aws-lambda
+$ npm i -D @types/aws-lambda
 ```
 
 ## Usage
@@ -90,8 +90,8 @@ const processSnsMessage = (message) => {
 		const jsonObject = JSON.parse(message.Message);
 		// do something...
 	} catch (err) {
-		// console.error(err); log error in cloudwatch to mark as successfully
-		// throw err; throw error to mark as unsuccessfully
+		// console.error(err); log error in cloudwatch
+		// throw err; throw error to trigger retry, if configured
 	}
 };
 lambda.sns('<TOPIC_ARN>', processSnsMessage);
@@ -134,8 +134,8 @@ const processSnsMessage = (message: SNSMessage) => {
 		const jsonObject = JSON.parse(message.Message);
 		// do something...
 	} catch (err) {
-		// console.error(err); log error in cloudwatch to mark as successfully
-		// throw err; throw error to mark as unsuccessfully
+		// console.error(err); log error in cloudwatch
+		// throw err; throw error to trigger retry, if configured
 	}
 };
 lambda.sns('<TOPIC_ARN>', processSnsMessage);
