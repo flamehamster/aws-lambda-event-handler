@@ -1,11 +1,11 @@
-# aws-lambda-handler
+# aws-lambda-event-handler
 
-[![npm package](https://img.shields.io/npm/v/aws-lambda-handler.svg)](http://npmjs.org/package/aws-lambda-handler)
-![npm license](https://img.shields.io/npm/l/aws-lambda-handler)
-![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/aws-lambda-handler)
+[![npm package](https://img.shields.io/npm/v/aws-lambda-event-handler.svg)](http://npmjs.org/package/aws-lambda-event-handler)
+![npm license](https://img.shields.io/npm/l/aws-lambda-event-handler)
+![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/aws-lambda-event-handler)
 
 Instead of using one Lambda function for each event, we can add multiple event triggers to a single Lambda function.
-`aws-lambda-handler` allows us to manage multiple events in one Lambda function easily.
+`aws-lambda-event-handler` allows us to manage multiple events in one Lambda function easily.
 
 ## Introduction
 
@@ -44,13 +44,13 @@ lambda.scheduledEvent(ruleArn: string, processScheduledEvent: () => Promise<void
 ### JavaScript
 
 ```bash
-$ npm i aws-lambda-handler
+$ npm i aws-lambda-event-handler
 ```
 
 ### TypeScript
 
 ```bash
-$ npm i aws-lambda-handler
+$ npm i aws-lambda-event-handler
 $ npm i -D @types/aws-lambda
 ```
 
@@ -59,7 +59,7 @@ $ npm i -D @types/aws-lambda
 ### JavaScript
 
 ```javascript
-const Lambda = require('aws-lambda-handler');
+const Lambda = require('aws-lambda-event-handler');
 
 const lambda = new Lambda();
 
@@ -102,7 +102,7 @@ exports.handler = lambda.handler;
 ### TypeScript
 
 ```typescript
-import Lambda from 'aws-lambda-handler';
+import Lambda from 'aws-lambda-event-handler';
 import { SQSRecord, SNSMessage } from 'aws-lambda';
 
 const lambda = new Lambda();

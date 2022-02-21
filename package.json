@@ -1,12 +1,12 @@
 {
-	"name": "aws-lambda-handler",
+	"name": "aws-lambda-event-handler",
 	"version": "1.0.0",
 	"description": "Simple event handler for AWS Lambda",
-	"repository": "git://github.com/flamehamster/aws-lambda-handler",
+	"repository": "git://github.com/flamehamster/aws-lambda-event-handler",
 	"bugs": {
-		"url": "https://github.com/flamehamster/aws-lambda-handler/issues"
+		"url": "https://github.com/flamehamster/aws-lambda-event-handler/issues"
 	},
-	"homepage": "https://github.com/flamehamster/aws-lambda-handler#readme",
+	"homepage": "https://github.com/flamehamster/aws-lambda-event-handler#readme",
 	"author": "Larry Png",
 	"license": "BSD-3-Clause",
 	"main": "index.js",
