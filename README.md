@@ -63,7 +63,7 @@ const Lambda = require('aws-lambda-handler');
 
 const lambda = new Lambda();
 
-const processScheduledEvent = () => {
+const processScheduledEvent = async () => {
 	try {
 		// do something...
 	} catch (err) {
@@ -73,7 +73,7 @@ const processScheduledEvent = () => {
 };
 lambda.scheduledEvent('<RULE_ARN>', processScheduledEvent);
 
-const processSqsRecord = (record) => {
+const processSqsRecord = async (record) => {
 	try {
 		const jsonObject = JSON.parse(record.body);
 		// do something...
@@ -85,7 +85,7 @@ const processSqsRecord = (record) => {
 lambda.sqs('<SQS_ARN>', processSqsRecord);
 lambda.sqsFifo('<SQS_FIFO_ARN>', processSqsRecord);
 
-const processSnsMessage = (message) => {
+const processSnsMessage = async (message) => {
 	try {
 		const jsonObject = JSON.parse(message.Message);
 		// do something...
@@ -107,7 +107,7 @@ import { SQSRecord, SNSMessage } from 'aws-lambda';
 
 const lambda = new Lambda();
 
-const processScheduledEvent = () => {
+const processScheduledEvent = async (): Promise<void> => {
 	try {
 		// do something...
 	} catch (err) {
@@ -117,7 +117,7 @@ const processScheduledEvent = () => {
 };
 lambda.scheduledEvent('<RULE_ARN>', processScheduledEvent);
 
-const processSqsRecord = (record: SQSRecord) => {
+const processSqsRecord = async (record: SQSRecord): Promise<void> => {
 	try {
 		const jsonObject = JSON.parse(record.body);
 		// do something...
@@ -129,7 +129,7 @@ const processSqsRecord = (record: SQSRecord) => {
 lambda.sqs('<SQS_ARN>', processSqsRecord);
 lambda.sqsFifo('<SQS_FIFO_ARN>', processSqsRecord);
 
-const processSnsMessage = (message: SNSMessage) => {
+const processSnsMessage = async (message: SNSMessage): Promise<void> => {
 	try {
 		const jsonObject = JSON.parse(message.Message);
 		// do something...
