@@ -21,7 +21,7 @@ lambda.sqs(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<vo
 * Records in a batch are processed concurrently by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * Records processed unsuccessfully will remain in the queue.
-* Additional permissions `sqs:GetQueueUrl` and `sqs:GetQueueUrl` are needed.
+* Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
 
 ```typescript
 lambda.sqsFifo(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<void>): void
@@ -30,7 +30,7 @@ lambda.sqsFifo(queueArn: string, processSqsRecord: (record: SQSRecord) => Promis
 * Records in a batch are processed in sequence by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * When a record is processed unsuccessfully, subsequent records will remain in the queue.
-* Additional permissions `sqs:GetQueueUrl` and `sqs:GetQueueUrl` are needed.
+* Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
 
 
 ```typescript
@@ -40,6 +40,8 @@ lambda.scheduledEvent(ruleArn: string, processScheduledEvent: () => Promise<void
 * More information [here](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-run-lambda-schedule.html).
 
 ## Installation
+
+Note: AWS Lambda Node.js runtime has AWS SDK for JavaScript v2.1001.0.
 
 ### JavaScript
 
