@@ -53,7 +53,7 @@ $ npm i aws-lambda-event-handler
 
 ```bash
 $ npm i aws-lambda-event-handler
-$ npm i -D aws-sdk
+$ npm i -D aws-sdk@2.1001.0
 $ npm i -D @types/aws-lambda
 ```
 

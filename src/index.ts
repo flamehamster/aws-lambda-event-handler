@@ -132,9 +132,11 @@ export default class Lambda {
 			})
 			.promise();
 
-		await sqs.deleteMessageBatch({
-			QueueUrl: result.QueueUrl,
-			Entries: fulfilledRecords
-		});
+		await sqs
+			.deleteMessageBatch({
+				QueueUrl: result.QueueUrl,
+				Entries: fulfilledRecords
+			})
+			.promise();
 	};
 }
