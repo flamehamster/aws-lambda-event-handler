@@ -1,6 +1,6 @@
-import { SNSEvent, SQSEvent, SQSRecord, EventBridgeEvent } from 'aws-lambda';
+import { SNSEvent, SQSEvent, SQSRecord, MSKEvent, EventBridgeEvent } from 'aws-lambda';
 
-import Lambda from '../src/index';
+import { Lambda } from '../src/index';
 
 const mock = {
 	processScheduledEvent: jest.fn(),
@@ -20,7 +20,9 @@ const mock = {
 			throw new Error('SQS FAILED');
 		}
 	}),
-	notProcessSqsFifo: jest.fn()
+	notProcessSqsFifo: jest.fn(),
+	processMsk: jest.fn(),
+	notProcessMsk: jest.fn()
 };
 
 describe('AWS Lambda Handler', () => {
@@ -58,6 +60,13 @@ describe('AWS Lambda Handler', () => {
 	const notSqsFifoArn = '';
 	lambda.sqsFifo(sqsFifoArn, mock.processSqsFifo);
 	lambda.sqsFifo(notSqsFifoArn, mock.notProcessSqsFifo);
+
+	// SQS Fifo
+	const mskArn = 'arn:aws:kafka:us-east-1:1234567890:cluster/demo/00000000-0000-0000-0000-000000000000-0';
+	const mskTopic = 'msk-topic';
+	const notMskArn = '';
+	lambda.msk(mskArn, mskTopic, mock.processMsk);
+	lambda.msk(notMskArn, mskTopic, mock.notProcessMsk);
 
 	const handler = lambda.handler;
 
@@ -314,6 +323,50 @@ describe('AWS Lambda Handler', () => {
 
 			const fns = Object.entries(mock)
 				.filter(([key]) => key !== 'processSqsFifo')
+				.map(([, value]) => value);
+
+			fns.forEach((fn) => {
+				expect(fn).not.toHaveBeenCalled();
+			});
+		});
+	});
+
+	describe('msk()', () => {
+		test('should process MSK event', async () => {
+			const mskEvent: MSKEvent = {
+				eventSource: 'aws:kafka',
+				eventSourceArn: mskArn,
+				records: {
+					'msk-topic-0': [
+						{
+							topic: mskTopic,
+							partition: 0,
+							offset: 0,
+							timestamp: 1234567890123,
+							timestampType: 'CREATE_TIME',
+							value: 'Hello from MSK!',
+							key: undefined
+						},
+						{
+							topic: mskTopic,
+							partition: 0,
+							offset: 1,
+							timestamp: 1234567890123,
+							timestampType: 'CREATE_TIME',
+							value: 'Hello from MSK!',
+							key: undefined
+						}
+					]
+				}
+			};
+
+			await handler(mskEvent);
+			expect(mock.processMsk).toBeCalledTimes(2);
+			expect(mock.processMsk).toHaveBeenCalledWith(mskEvent.records['msk-topic-0'][0]);
+			expect(mock.processMsk).toHaveBeenCalledWith(mskEvent.records['msk-topic-0'][1]);
+
+			const fns = Object.entries(mock)
+				.filter(([key]) => key !== 'processMsk')
 				.map(([, value]) => value);
 
 			fns.forEach((fn) => {

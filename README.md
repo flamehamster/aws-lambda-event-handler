@@ -18,7 +18,7 @@ lambda.sns(topicArn: string, processSnsMessage: (message: SNSMessage) => Promise
 lambda.sqs(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<void>): void
 ```
 * `processSqsRecord` is an `async` function that takes in [SQSRecord](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/aws-lambda/trigger/sqs.d.ts#L8-L18).
-* Records in a batch are processed concurrently by `processSqsRecord` function.
+* Records in a batch are processed `concurrently` by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * Records processed unsuccessfully will remain in the queue.
 * Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
@@ -27,11 +27,18 @@ lambda.sqs(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<vo
 lambda.sqsFifo(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<void>): void
 ```
 * `processSqsRecord` is an `async` function that takes in [SQSRecord](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/aws-lambda/trigger/sqs.d.ts#L8-L18).
-* Records in a batch are processed in sequence by `processSqsRecord` function.
+* Records in a batch are processed `sequentially` by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * When a record is processed unsuccessfully, subsequent records will remain in the queue.
 * Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
 
+```typescript
+lambda.msk(mskArn: string, mskTopic: string, processMskRecord: (record: MSKRecord) => Promise<void>): void
+```
+* `processMskRecord` is an `async` function that takes in [MSKRecord](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/aws-lambda/trigger/msk.d.ts#L5-L13).
+* Records in a batch are processed `sequentially` by `processMskRecord` function.
+* After Lambda processes each batch, it commits the offsets of the records in that batch.
+* If `processMskRecord` returns an error for any of the records in a batch, Lambda retries the entire batch of records.
 
 ```typescript
 lambda.scheduledEvent(ruleArn: string, processScheduledEvent: () => Promise<void>): void
@@ -62,7 +69,7 @@ $ npm i -D @types/aws-lambda
 ### JavaScript
 
 ```javascript
-const Lambda = require('aws-lambda-event-handler');
+const { Lambda } = require('aws-lambda-event-handler');
 
 const lambda = new Lambda();
 
@@ -99,14 +106,26 @@ const processSnsMessage = async (message) => {
 };
 lambda.sns('<TOPIC_ARN>', processSnsMessage);
 
+const processMskRecord = async (record) => {
+	try {
+		const value = Buffer.from(record.value, 'base64').toString();
+		const jsonObject = JSON.parse(value);
+		// do something...
+	} catch (err) {
+		// console.error(err); log error in cloudwatch
+		// throw err; throw error to trigger retry, if configured
+	}
+};
+lambda.msk'<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
+
 exports.handler = lambda.handler;
 ```
 
 ### TypeScript
 
 ```typescript
-import Lambda from 'aws-lambda-event-handler';
-import { SQSRecord, SNSMessage } from 'aws-lambda';
+import { Lambda } from 'aws-lambda-event-handler';
+import { SQSRecord, SNSMessage, MSKRecord } from 'aws-lambda';
 
 const lambda = new Lambda();
 
@@ -142,6 +161,18 @@ const processSnsMessage = async (message: SNSMessage): Promise<void> => {
 	}
 };
 lambda.sns('<TOPIC_ARN>', processSnsMessage);
+
+const processMskRecord = async (record: MSKRecord) => {
+	try {
+		const value = Buffer.from(record.value, 'base64').toString();
+		const jsonObject = JSON.parse(value);
+		// do something...
+	} catch (err) {
+		// console.error(err); log error in cloudwatch
+		// throw err; throw error to trigger retry, if configured
+	}
+};
+lambda.msk'<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
 
 const handler = lambda.handler;
 
