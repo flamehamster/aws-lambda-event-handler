@@ -116,7 +116,7 @@ const processMskRecord = async (record) => {
 		// throw err; throw error to trigger retry, if configured
 	}
 };
-lambda.msk'<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
+lambda.msk('<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
 
 exports.handler = lambda.handler;
 ```
@@ -162,7 +162,7 @@ const processSnsMessage = async (message: SNSMessage): Promise<void> => {
 };
 lambda.sns('<TOPIC_ARN>', processSnsMessage);
 
-const processMskRecord = async (record: MSKRecord) => {
+const processMskRecord = async (record: MSKRecord): Promise<void> => {
 	try {
 		const value = Buffer.from(record.value, 'base64').toString();
 		const jsonObject = JSON.parse(value);
@@ -172,7 +172,7 @@ const processMskRecord = async (record: MSKRecord) => {
 		// throw err; throw error to trigger retry, if configured
 	}
 };
-lambda.msk'<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
+lambda.msk('<MSK_ARN>', '<MSK_TOPIC>', processMskRecord);
 
 const handler = lambda.handler;
 

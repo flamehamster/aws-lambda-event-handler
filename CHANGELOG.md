@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.1.1
+
+Fix README
+
 ### 1.1.0
 
 Add support to `AWS MSK` Events
