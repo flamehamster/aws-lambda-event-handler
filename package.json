@@ -1,6 +1,6 @@
 {
 	"name": "aws-lambda-event-handler",
-	"version": "1.0.4",
+	"version": "1.1.0",
 	"description": "Simple event handler for AWS Lambda",
 	"repository": "git://github.com/flamehamster/aws-lambda-event-handler",
 	"bugs": {
@@ -63,6 +63,7 @@
 		"Event Handling",
 		"SQS",
 		"SNS",
+		"MSK",
 		"EventBridge"
 	]
 }

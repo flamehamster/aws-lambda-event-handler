@@ -1,9 +1,9 @@
-import { SNSEvent, SNSMessage, SQSEvent, SQSRecord, EventBridgeEvent } from 'aws-lambda';
+import { SNSEvent, SNSMessage, SQSEvent, SQSRecord, MSKEvent, MSKRecord, EventBridgeEvent } from 'aws-lambda';
 import SQS from 'aws-sdk/clients/sqs';
 
-type LambdaEvent = SNSEvent | SQSEvent | EventBridgeEvent<string, Record<string, unknown>>;
+type LambdaEvent = SNSEvent | SQSEvent | MSKEvent | EventBridgeEvent<string, Record<string, unknown>>;
 
-export default class Lambda {
+export class Lambda {
 	private readonly fns: ((event: LambdaEvent) => Promise<unknown>)[];
 
 	constructor() {
@@ -72,7 +72,6 @@ export default class Lambda {
 
 			try {
 				for (const record of records) {
-					// eslint-disable-next-line no-await-in-loop
 					await processSqsRecord(record);
 					fulfilledRecords.push({
 						Id: record.messageId,
@@ -89,6 +88,27 @@ export default class Lambda {
 				console.error(err);
 				const failedRecordsCount = records.length - fulfilledRecords.length;
 				throw new Error(`SQS FIFO Batch Failure: ${failedRecordsCount} of ${records.length} failed`);
+			}
+		};
+		this.fns.push(fn);
+	};
+
+	msk = (mskArn: string, mskTopic: string, processMskRecord: (record: MSKRecord) => Promise<void>): void => {
+		const fn = async (event: MSKEvent) => {
+			if (event.eventSource !== 'aws:kafka' || event.eventSourceArn !== mskArn) return;
+			if (!(event.records instanceof Object) || Array.isArray(event.records)) return;
+
+			const records: MSKRecord[] = [];
+			for (const [, mskRecords] of Object.entries(event.records)) {
+				mskRecords.forEach((mskRecord) => {
+					if (mskRecord.topic === mskTopic) {
+						records.push(mskRecord);
+					}
+				});
+			}
+
+			for (const record of records) {
+				await processMskRecord(record);
 			}
 		};
 		this.fns.push(fn);
