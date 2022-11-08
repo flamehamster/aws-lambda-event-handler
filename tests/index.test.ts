@@ -345,7 +345,8 @@ describe('AWS Lambda Handler', () => {
 							timestamp: 1234567890123,
 							timestampType: 'CREATE_TIME',
 							value: 'Hello from MSK!',
-							key: undefined
+							key: '',
+							headers: []
 						},
 						{
 							topic: mskTopic,
@@ -354,7 +355,8 @@ describe('AWS Lambda Handler', () => {
 							timestamp: 1234567890123,
 							timestampType: 'CREATE_TIME',
 							value: 'Hello from MSK!',
-							key: undefined
+							key: '',
+							headers: []
 						}
 					]
 				}

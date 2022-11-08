@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.1.2
+
+Update Dependencies
+
 ### 1.1.1
 
 Fix README
