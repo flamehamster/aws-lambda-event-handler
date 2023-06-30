@@ -1,6 +1,6 @@
 {
 	"name": "aws-lambda-event-handler",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Simple event handler for AWS Lambda",
 	"repository": "git://github.com/flamehamster/aws-lambda-event-handler",
 	"bugs": {

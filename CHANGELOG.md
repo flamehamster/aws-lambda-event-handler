@@ -1,6 +1,6 @@
 ## Changelog
 
-### 2.0.
+### 2.0.1
 
 Use AWS SDK 3.188.0 for Node.js 18
 Update Dependencies
