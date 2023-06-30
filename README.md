@@ -47,7 +47,7 @@ lambda.scheduledEvent(ruleArn: string, processScheduledEvent: () => Promise<void
 
 ## Installation
 
-Note: AWS Lambda Node.js runtime has AWS SDK for JavaScript v2.1001.0.
+Note: AWS Lambda Node.js 18 runtime has AWS SDK for JavaScript v3.188.0.
 
 ### JavaScript
 
@@ -59,7 +59,7 @@ $ npm i aws-lambda-event-handler
 
 ```bash
 $ npm i aws-lambda-event-handler
-$ npm i -D aws-sdk@2.1001.0
+$ npm i -D @aws-sdk/client-sqs@3.188.0
 $ npm i -D @types/aws-lambda
 ```
 
