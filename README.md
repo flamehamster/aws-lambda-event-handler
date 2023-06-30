@@ -2,7 +2,6 @@
 
 [![npm package](https://img.shields.io/npm/v/aws-lambda-event-handler.svg)](http://npmjs.org/package/aws-lambda-event-handler)
 ![npm license](https://img.shields.io/npm/l/aws-lambda-event-handler)
-![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/aws-lambda-event-handler)
 
 Instead of using one Lambda function for each event, we can add multiple event triggers to a single Lambda function.
 `aws-lambda-event-handler` allows us to manage multiple events in one Lambda function easily.
@@ -21,7 +20,7 @@ lambda.sqs(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<vo
 * Records in a batch are processed `concurrently` by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * Records processed unsuccessfully will remain in the queue.
-* Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
+* Additional permission `sqs:DeleteMessage` is needed.
 
 ```typescript
 lambda.sqsFifo(queueArn: string, processSqsRecord: (record: SQSRecord) => Promise<void>): void
@@ -30,7 +29,7 @@ lambda.sqsFifo(queueArn: string, processSqsRecord: (record: SQSRecord) => Promis
 * Records in a batch are processed `sequentially` by `processSqsRecord` function.
 * Records processed successfully are removed from the queue.
 * When a record is processed unsuccessfully, subsequent records will remain in the queue.
-* Additional permissions `sqs:GetQueueUrl` and `sqs:DeleteMessage` are needed.
+* Additional permission `sqs:DeleteMessage` is needed.
 
 ```typescript
 lambda.msk(mskArn: string, mskTopic: string, processMskRecord: (record: MSKRecord) => Promise<void>): void

@@ -1,5 +1,5 @@
 import { SNSEvent, SNSMessage, SQSEvent, SQSRecord, MSKEvent, MSKRecord, EventBridgeEvent } from 'aws-lambda';
-import SQS from 'aws-sdk/clients/sqs';
+import { SQSClient, DeleteMessageBatchRequestEntry, DeleteMessageBatchCommand } from '@aws-sdk/client-sqs';
 
 type LambdaEvent = SNSEvent | SQSEvent | MSKEvent | EventBridgeEvent<string, Record<string, unknown>>;
 
@@ -29,7 +29,7 @@ export class Lambda {
 			const records = event.Records;
 			if (records[0].eventSource !== 'aws:sqs' || records[0].eventSourceARN !== queueArn) return;
 
-			const fulfilledRecords: SQS.DeleteMessageBatchRequestEntry[] = [];
+			const fulfilledRecords: DeleteMessageBatchRequestEntry[] = [];
 			const errors: Error[] = [];
 
 			await Promise.all(
@@ -68,7 +68,7 @@ export class Lambda {
 			const records = event.Records;
 			if (records[0].eventSource !== 'aws:sqs' || records[0].eventSourceARN !== queueArn) return;
 
-			const fulfilledRecords: SQS.DeleteMessageBatchRequestEntry[] = [];
+			const fulfilledRecords: DeleteMessageBatchRequestEntry[] = [];
 
 			try {
 				for (const record of records) {
@@ -141,22 +141,17 @@ export class Lambda {
 
 	sqsDeleteMessageBatch = async (
 		queueArn: string,
-		fulfilledRecords: SQS.DeleteMessageBatchRequestEntry[]
+		fulfilledRecords: DeleteMessageBatchRequestEntry[]
 	): Promise<void> => {
 		const [, , , region, awsAccountId, queueName] = queueArn.split(':');
-		const sqs = new SQS({ region });
-		const result = await sqs
-			.getQueueUrl({
-				QueueName: queueName,
-				QueueOwnerAWSAccountId: awsAccountId
-			})
-			.promise();
+		const queueUrl = `https://sqs.${region}.amazonaws.com/${awsAccountId}/${queueName}`;
+		const sqs = new SQSClient({ region });
 
-		await sqs
-			.deleteMessageBatch({
-				QueueUrl: result.QueueUrl,
-				Entries: fulfilledRecords
-			})
-			.promise();
+		const command = new DeleteMessageBatchCommand({
+			QueueUrl: queueUrl,
+			Entries: fulfilledRecords
+		});
+
+		await sqs.send(command);
 	};
 }

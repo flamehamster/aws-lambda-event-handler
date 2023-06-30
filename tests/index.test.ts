@@ -146,13 +146,13 @@ describe('AWS Lambda Handler', () => {
 							SignatureVersion: '1',
 							Timestamp: '2020-02-02T20:02:02Z',
 							Signature: 'abcdefghijklmnopqrstuvwxyz',
-							SigningCertUrl:
+							SigningCertURL:
 								'https://sns.us-east-1.amazonaws.com/SimpleNotificationService-abcdefghijklmnopqrstuvwxyz.pem',
 							MessageId: 'abcdefghijklmnopqrstuvwxyz',
 							Message: 'Hello from SNS!',
 							MessageAttributes: {},
 							Type: 'Notification',
-							UnsubscribeUrl:
+							UnsubscribeURL:
 								'https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&amp;SubscriptionArn=arn:aws:sns:us-east-1:1234567890:lambda:abcdefg',
 							TopicArn: topicArn,
 							Subject: 'TestInvoke'
@@ -336,6 +336,8 @@ describe('AWS Lambda Handler', () => {
 			const mskEvent: MSKEvent = {
 				eventSource: 'aws:kafka',
 				eventSourceArn: mskArn,
+				bootstrapServers:
+					'b-1.cluster.kafka.us-east-1.amazonaws.com:9092,b-2.cluster.kafka.us-east-1.amazonaws.com:9092',
 				records: {
 					'msk-topic-0': [
 						{
